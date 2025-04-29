@@ -1,0 +1,115 @@
+﻿@using System.Text.Json; 
+@model List<Easyweb.Site.Models.Coffee>
+
+@{
+    Layout = "~/Views/_Layout/_Layout.cshtml";
+    ViewData["Title"] = "Coffee";
+}
+
+<div class="m-standard">
+    <div class="content-standard">
+        <h3 class="size-xxl m-t-4 m-b-4">Hot Coffee Drinks</h3>
+
+        <div class="coffee-grid">
+            @foreach (var coffee in Model)
+            {
+                <div class="coffee-card">
+                    <img src="@coffee.image" alt="@coffee.title" class="coffee-image" />
+                    <div class="coffee-details">
+                        <h3 class="coffee-title">@coffee.title</h3>
+                        <p class="coffee-description">@coffee.description</p>
+
+                        
+                        <button type="button" class="view-recipe-btn"
+                                data-id="@coffee.id"
+                                data-title="@coffee.title"
+                                data-image="@coffee.image"
+                                data-description="@coffee.description"
+                                data-ingredients="@JsonSerializer.Serialize(coffee.ingredients)">
+                            View Recipe
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<div id="recipeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal-btn">&times;</span>
+        <div class="modal-body">
+            <img id="modalImage" src="" alt="" class="detail-image" />
+            <div class="detail-text">
+                <h1 id="modalTitle"></h1>
+                <p id="modalDescription"></p>
+                <h3>Ingredients</h3>
+                <ul id="modalIngredients">
+                  
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('recipeModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalIngredientsList = document.getElementById('modalIngredients');
+            const closeModalBtn = modal.querySelector('.close-modal-btn');
+
+          
+            function openModal(button) {
+                const title = button.getAttribute('data-title');
+                const image = button.getAttribute('data-image');
+                const description = button.getAttribute('data-description');
+                const ingredientsJson = button.getAttribute('data-ingredients');
+                const ingredients = JSON.parse(ingredientsJson || '[]'); 
+
+                modalTitle.textContent = title;
+                modalImage.src = image;
+                modalImage.alt = title;
+                modalDescription.textContent = description;
+
+               
+                modalIngredientsList.innerHTML = '';
+                ingredients.forEach(ingredient => {
+                    const li = document.createElement('li');
+                    li.textContent = ingredient;
+                    modalIngredientsList.appendChild(li);
+                });
+
+                modal.style.display = 'block';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+
+            document.querySelectorAll('.view-recipe-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    openModal(this);
+                });
+            });
+
+            closeModalBtn.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === "Escape" && modal.style.display === 'block') {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+}
