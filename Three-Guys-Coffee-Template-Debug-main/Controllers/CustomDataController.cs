@@ -1,24 +1,31 @@
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Easyweb.Site.Models;
+using Easyweb.Site.Services;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList;
+using Microsoft.AspNetCore.Mvc;
+
 
 public class CustomDataController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IMoodService _moodService;
 
-    public CustomDataController(IHttpClientFactory httpClientFactory)
+    public CustomDataController(IHttpClientFactory httpClientFactory, IMoodService moodService)
     {
         _httpClientFactory = httpClientFactory;
-    }
-
+        _moodService = moodService;
+        }
 
     [HttpGet("/coffee")]
-    public async Task<IActionResult> Index()
-    {
+    public async Task<IActionResult> Index(string mood = null, string season = null, int page = 1)
+{
         var client = _httpClientFactory.CreateClient();
         var response = await client.GetAsync("https://api.sampleapis.com/coffee/hot");
         response.EnsureSuccessStatusCode();
@@ -26,7 +33,7 @@ public class CustomDataController : Controller
         var json = await response.Content.ReadAsStringAsync();
         var coffeeList = JsonSerializer.Deserialize<List<Coffee>>(json);
 
-        foreach (var coffee in coffeeList) //Loopar igenom varje kaffe och l‰gger till dummydata om ingredienser ‰r tom 
+        foreach (var coffee in coffeeList) //Loopar igenom varje kaffe och l√§gger till dummydata om ingredienser √§r tom 
         {
             if (coffee.ingredients == null || !coffee.ingredients.Any())
             {
@@ -73,14 +80,28 @@ public class CustomDataController : Controller
                 else
                 {
                     coffee.ingredients = new List<string> { "Default Ingredient 1", "Default Ingredient 2" };
-                } // Fallback
+                }
             }
         }
 
-        return View(coffeeList);
-    }
-}
+        const int pageSize = 6;
 
+            int pageNumber = page <= 0 ? 1 : page;
+
+            var pagedCoffeeList = coffeeList.ToPagedList(pageNumber, pageSize);
+
+
+            var moodMatcherResult = _moodService.GetMoodSuggestions(mood, season, coffeeList);
+
+            var viewModel = new CoffeeIndexViewModel
+            {
+                MainCoffeeListPaged = pagedCoffeeList,
+                MoodMatcher = moodMatcherResult
+            };
+
+            return View(viewModel);
+        }
+    }
 
 
 //using System.Net.Http;

@@ -22,6 +22,7 @@ using Easyweb.Site.Core.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Easyweb.Site.RuntimeCompilation;
 using Easyweb.Site.DataApi;
+using Easyweb.Site.Services;
 
 namespace Easyweb
 {
@@ -62,6 +63,9 @@ namespace Easyweb
             // or reach custom configuration items unbound like: 
             // Configuration["SiteOptions:DomainOptions:CustomHost"] 
             // which corresponds to: { SiteOptions: { DomainOptions: { CustomHost: "myHost" } } } in appSettings.json
+
+            services.AddScoped<IMoodService, MoodService>();
+
             services.ConfigureEasywebOptions(Configuration);
 
             // Register default easyweb services, giving access to DI for all different interfaces/classes, ex:
@@ -92,7 +96,6 @@ namespace Easyweb
             //
             services.AddOutputCaching();
             services.AddHttpClient();
-
 
             // Add MVC
             //

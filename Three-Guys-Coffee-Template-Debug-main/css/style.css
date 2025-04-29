@@ -1,4 +1,4 @@
-﻿
+
 html, body {
     padding: 0;
     margin: 0;
@@ -927,4 +927,204 @@ header{
             padding-left: 0;
             list-style-position: inside;
         }
+}
+
+
+.mood-season-selectors {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.selector-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.selector-label {
+    font-weight: 600;
+    margin-right: 5px;
+    color: #333;
+}
+
+.mood-season-link {
+    color: #555;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    transition: all 0.2s ease;
+    font-size: 0.9em;
+}
+
+.mood-season-link:hover {
+    background-color: #eee;
+    border-color: #aaa;
+    color: #000;
+}
+
+.mood-season-link.active {
+    background-color: #e0e0e0;
+    border-color: #555;
+    color: #000;
+    font-weight: 600;
+}
+
+.clear-selection {
+    font-size: 0.8em;
+    color: #888;
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.clear-selection:hover {
+    text-decoration: underline;
+}
+
+.suggestion-card .coffee-title {
+    font-size: 1.1em;
+}
+
+.mood-season-link {
+    display: inline-block; 
+    padding: 8px 15px;
+    margin: 0 5px 5px 0; 
+    border: 1px solid #ccc; 
+    border-radius: 20px; 
+    text-decoration: none;
+    color: #333; 
+    background-color: #f8f8f8; 
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden; 
+    z-index: 1;
+}
+
+    .mood-season-link.active {
+        background-color: #aaaaaa; 
+        color: white;
+        border-color: #aaaaaa;
+    }
+
+    .mood-season-link:hover:not(.active) {
+        background-color: #e9e9e9;
+        border-color: #bbb;
+    }
+
+.mood-cozy:hover:not(.active) {
+    background-color: #ffb6c1;
+    border-color: #ffb6c4;
+    color: #333;
+}
+
+.mood-relaxed:hover:not(.active) {
+    background-color: #b2e7cb;
+    border-color: #a1d9be;
+    color: #333;
+}
+
+.mood-focused:hover:not(.active) {
+    background-color: #a0c4ff;
+    border-color: #8ebaff;
+    color: #333;
+}
+
+.mood-energetic:hover:not(.active) {
+    background-color: #ff9f7f; 
+    border-color: #ff8e6a;
+    color: #333;
+}
+
+
+.coffee-ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background-color: rgba(101, 67, 33, 0.7);
+    animation: ripple 0.5s linear; 
+    z-index: 2; 
+}
+
+@keyframes ripple {
+    0% {
+        width: 0px;
+        height: 0px;
+        opacity: 0.5;
+    }
+
+    100% {
+        width: 200px; 
+        height: 200px;
+        opacity: 0;
+    }
+}
+.pagination-controls {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.pagination {
+    display: inline-flex;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    align-items: center;
+    gap: 12px;
+}
+.page-link {
+    display: block;
+    padding: 5px 8px;
+    text-decoration: none;
+    color: #555;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    transition: color 0.2s ease-in-out, font-weight 0.2s ease-in-out;
+    font-size: 1.4rem;
+    font-weight: normal;
+    line-height: 1;
+    min-width: unset;
+    text-align: center;
+    outline: none;
+}
+.page-item:not(.disabled) .page-link:hover {
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.pagination .PagedList-pageCountAndLocation a {
+    color: #333;
+    font-weight: bold; 
+    padding: 5px 8px; 
+    display: block;
+    text-decoration: none; 
+    pointer-events: none; 
+    cursor: default;
+}
+
+.page-item.disabled a {
+    color: #bbb; 
+    cursor: not-allowed;
+    opacity: 0.6;
+    font-weight: normal;
+    text-decoration: none; 
+    pointer-events: none; 
+}
+
+.coffee-card.suggestion-card.clickable-suggestion-card {
+    cursor: pointer; 
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.coffee-card.suggestion-card.clickable-suggestion-card:hover {
+    transform: translateY(-8px); 
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+   background-color: #f9f9f9; 
+    border-color: #ccc; 
 }
