@@ -1,0 +1,226 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+@model Easyweb.Site.Models.CoffeeIndexViewModel
+
+
+@{
+    Layout = "~/Views/_Layout/_Layout.cshtml";
+    ViewData["Title"] = "Coffee";
+}
+
+<div class="mood-season-page @Model.MoodMatcher.ThemeClass">
+    <div class="m-standard">
+        <div class="content-standard">
+
+
+            <section class="mood-matcher-section m-b-5">
+
+                <h2 class="size-sm m-b-3">Find your perfect Coffee Mood</h2>
+
+                <div class="mood-season-selectors m-b-4">
+                    <div class="selector-group">
+                        <span class="selector-label">Mood:</span>
+                        @foreach (var mood in Model.MoodMatcher.AvailableMoods)
+                        {
+                            <a asp-action="Index"
+                               asp-controller="CustomData"
+                               asp-route-mood="@mood"
+                               asp-route-season="@Model.MoodMatcher.SelectedSeason"
+                               class="mood-season-link mood-@mood.ToLower() @(Model.MoodMatcher.SelectedMood == mood ? "active" : "")">@mood</a>
+                        }
+                        @if (Model.MoodMatcher.SelectedMood != null)
+                        {
+                            <a asp-action="Index" asp-controller="CustomData" asp-route-season="@Model.MoodMatcher.SelectedSeason" class="clear-selection">Clear Mood</a>
+                        }
+                    </div>
+                    <div class="selector-group">
+                        <span class="selector-label">Season:</span>
+                        @foreach (var season in Model.MoodMatcher.AvailableSeasons)
+                        {
+                            <a asp-action="Index"
+                               asp-controller="CustomData"
+                               asp-route-mood="@Model.MoodMatcher.SelectedMood"
+                               asp-route-season="@season"
+                               class="mood-season-link season-@season.ToLower() @(Model.MoodMatcher.SelectedSeason == season ? "active" : "")">@season</a>
+                        }
+                        @if (Model.MoodMatcher.SelectedSeason != null)
+                        {
+                            <a asp-action="Index" asp-controller="CustomData" asp-route-mood="@Model.MoodMatcher.SelectedMood" class="clear-selection">Clear Season</a>
+                        }
+                    </div>
+                </div>
+
+                <div class="results-area">
+                    @if (Model.MoodMatcher.SuggestedCoffees != null && Model.MoodMatcher.SuggestedCoffees.Any())
+                    {
+                        <h3 class="size-lg m-b-3">Suggestions for @(Model.MoodMatcher.SelectedMood ?? Model.MoodMatcher.SelectedSeason):</h3>
+                        <div class="coffee-grid suggestion-grid">
+                     
+                            @foreach (var coffee in Model.MoodMatcher.SuggestedCoffees)
+                            {
+                                <div class="coffee-card suggestion-card clickable-suggestion-card"
+                                     data-id="@coffee.id"
+                                     data-title="@coffee.title"
+                                     data-image="@coffee.image"
+                                     data-description="@coffee.description"
+                                     data-ingredients="@System.Text.Json.JsonSerializer.Serialize(coffee.ingredients)">
+                                    <img src="@coffee.image" alt="@coffee.title" class="coffee-image" />
+                                    <div class="coffee-details">
+                                        <h4 class="coffee-title">@coffee.title</h4>
+                                        <p class="coffee-description">@coffee.description</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (!string.IsNullOrEmpty(Model.MoodMatcher.SelectedMood) || !string.IsNullOrEmpty(Model.MoodMatcher.SelectedSeason))
+                    {
+                        <p>No specific suggestions found for this combination. Browse all below!</p>
+                    }
+
+                </div>
+            </section>
+
+            <hr class="m-b-4">
+
+            <h3 class="size-lg m-t-4 m-b-4">Hot Coffee Drinks</h3>
+
+            <div class="coffee-grid main-grid">
+                @foreach (var coffee in Model.MainCoffeeListPaged)
+                {
+                    <div class="coffee-card">
+                        <img src="@coffee.image" alt="@coffee.title" class="coffee-image" />
+                        <div class="coffee-details">
+                            <h3 class="coffee-title">@coffee.title</h3>
+                            <p class="coffee-description">@coffee.description</p>
+
+                            <button type="button" class="view-recipe-btn"
+                                    data-id="@coffee.id"
+                                    data-title="@coffee.title"
+                                    data-image="@coffee.image"
+                                    data-description="@coffee.description"
+                                    data-ingredients="@System.Text.Json.JsonSerializer.Serialize(coffee.ingredients)">
+                                View Recipe
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="pagination-controls m-t-4">
+                @Html.PagedListPager(Model.MainCoffeeListPaged, page => Url.Action("Index", "CustomData", new { page = page, mood = Model.MoodMatcher.SelectedMood, season = Model.MoodMatcher.SelectedSeason }),
+                    new X.PagedList.Mvc.Core.PagedListRenderOptions
+                    {
+                    DisplayLinkToIndividualPages = false,
+                    DisplayPageCountAndCurrentLocation = true, 
+                    PageCountAndCurrentLocationFormat = "{0}",
+                    LinkToPreviousPageFormat = "<", 
+                    LinkToNextPageFormat = ">"
+                    })
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="recipeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal-btn">&times;</span>
+        <div class="modal-body">
+            <img id="modalImage" src="" alt="" class="detail-image" />
+            <div class="detail-text">
+                <h1 id="modalTitle"></h1>
+                <p id="modalDescription"></p>
+                <h3>Ingredients</h3>
+                <ul id="modalIngredients"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+       
+         document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('recipeModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalIngredientsList = document.getElementById('modalIngredients');
+            const closeModalBtn = modal.querySelector('.close-modal-btn');
+
+            function openModal(button) {
+                 const title = button.getAttribute('data-title');
+                const image = button.getAttribute('data-image');
+                const description = button.getAttribute('data-description');
+                const ingredientsJson = button.getAttribute('data-ingredients');
+                const ingredients = JSON.parse(ingredientsJson || '[]');
+
+                modalTitle.textContent = title;
+                modalImage.src = image;
+                modalImage.alt = title;
+                modalDescription.textContent = description;
+
+                modalIngredientsList.innerHTML = '';
+                ingredients.forEach(ingredient => {
+                    const li = document.createElement('li');
+                    li.textContent = ingredient;
+                    modalIngredientsList.appendChild(li);
+                });
+
+                modal.style.display = 'block';
+            }
+            function closeModal() { modal.style.display = 'none'; }
+            document.querySelectorAll('.view-recipe-btn').forEach(button => { button.addEventListener('click', function () { openModal(this); 
+              }); 
+            });
+
+              document.querySelectorAll('.coffee-card.suggestion-card.clickable-suggestion-card').forEach(card => {
+                card.addEventListener('click', function () {
+                     openModal(this); // 'this' refererar till det klickade kort-div-elementet
+                });
+            });
+            
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', function (event) { if (event.target === modal) { closeModal(); } });
+            document.addEventListener('keydown', function (event) { if (event.key === "Escape" && modal.style.display === 'block') { closeModal(); } });
+        });
+
+         const moodSeasonLinks = document.querySelectorAll('.mood-season-link');
+
+              moodSeasonLinks.forEach(link => {
+                  link.addEventListener('click', function(event) {
+                      event.preventDefault();
+
+                      const link = event.target;
+                      const rect = link.getBoundingClientRect(); 
+                      const clickX = event.clientX - rect.left; 
+                      const clickY = event.clientY - rect.top; 
+
+                      //Skapar ripple-elementet för knapparna
+                      const ripple = document.createElement('span');
+                      ripple.classList.add('coffee-ripple'); 
+                      ripple.style.left = `${clickX}px`;
+                      ripple.style.top = `${clickY}px`;
+
+                       link.style.position = 'relative';
+                       link.style.overflow = 'hidden';
+                       link.appendChild(ripple);
+
+                      ripple.addEventListener('animationend', () => {
+                          ripple.remove();
+                          window.location.href = link.href;
+                      });
+
+                      setTimeout(() => {
+                           if (link.contains(ripple)) { 
+                               ripple.remove();
+                           }
+                           window.location.href = link.href;
+                       }, 600); 
+
+                  });
+              });
+    </script>
+    }
+}
