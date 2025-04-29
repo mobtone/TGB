@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,8 @@ using Easyweb.Site.Models;
 using Easyweb.Site.Services;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
+using Microsoft.AspNetCore.Mvc;
+
 
 public class CustomDataController : Controller
 {
@@ -18,12 +21,11 @@ public class CustomDataController : Controller
     {
         _httpClientFactory = httpClientFactory;
         _moodService = moodService;
-    }
-
+        }
 
     [HttpGet("/coffee")]
     public async Task<IActionResult> Index(string mood = null, string season = null, int page = 1)
-    {
+{
         var client = _httpClientFactory.CreateClient();
         var response = await client.GetAsync("https://api.sampleapis.com/coffee/hot");
         response.EnsureSuccessStatusCode();
@@ -31,7 +33,7 @@ public class CustomDataController : Controller
         var json = await response.Content.ReadAsStringAsync();
         var coffeeList = JsonSerializer.Deserialize<List<Coffee>>(json);
 
-        foreach (var coffee in coffeeList)
+        foreach (var coffee in coffeeList) //Loopar igenom varje kaffe och lägger till dummydata om ingredienser är tom 
         {
             if (coffee.ingredients == null || !coffee.ingredients.Any())
             {
@@ -100,6 +102,7 @@ public class CustomDataController : Controller
             return View(viewModel);
         }
     }
+
 
 //using System.Net.Http;
 //using System.Threading.Tasks;

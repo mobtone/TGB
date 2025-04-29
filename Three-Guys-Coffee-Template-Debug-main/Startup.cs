@@ -42,7 +42,6 @@ namespace Easyweb
             _env = env;
         }
 
-
         /// <summary>
         /// Configuration containing all settings for the app
         /// </summary>
@@ -64,6 +63,7 @@ namespace Easyweb
             // or reach custom configuration items unbound like: 
             // Configuration["SiteOptions:DomainOptions:CustomHost"] 
             // which corresponds to: { SiteOptions: { DomainOptions: { CustomHost: "myHost" } } } in appSettings.json
+
             services.AddScoped<IMoodService, MoodService>();
 
             services.ConfigureEasywebOptions(Configuration);
@@ -96,8 +96,6 @@ namespace Easyweb
             //
             services.AddOutputCaching();
             services.AddHttpClient();
-
-
 
             // Add MVC
             //

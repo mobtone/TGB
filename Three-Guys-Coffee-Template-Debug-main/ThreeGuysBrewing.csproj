@@ -13,6 +13,7 @@
     <PackageReference Include="Easyweb.Site.RuntimeCompilation" Version="8.0.0" />
     <PackageReference Include="Easyweb.Site.ThumbnailGeneration" Version="8.0.0" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.2.1" />
+
   </ItemGroup>
 
   <PropertyGroup>
